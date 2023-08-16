@@ -197,11 +197,11 @@ impl Null for String {
 impl Null for TypeId {
     #[inline(always)]
     fn null() -> Self {
-        unsafe {mem::transmute::<u64, TypeId>(u64::null()) }
+        unsafe {mem::transmute::<u128, TypeId>(u128::null()) }
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        unsafe {mem::transmute::<&TypeId, &u64>(self) }.is_null()
+        unsafe {mem::transmute::<&TypeId, &u128>(self) }.is_null()
     }
 }
 
