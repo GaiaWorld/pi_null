@@ -1,12 +1,12 @@
 [package]
 name = "pi_null"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["zmythleo <zmythleo@gmail.com>"]
 edition = "2021"
 description = "define trait is named Null. u8,u32,u64,Option...is implements Null"
 repository = "https://github.com/GaiaWorld/pi_null.git"
 license = "MIT OR Apache-2.0"
 keywords = ["pi", "null", "pi_null"]
-rust-version = "1.70"
+rust-version = "1.72"
 
 [dependencies]
