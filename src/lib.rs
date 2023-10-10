@@ -2,7 +2,8 @@
 //! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。 
 //!
 
-use std::{any::TypeId, mem};
+use std::any::TypeId;
+
 pub trait Null {
     /// 判断当前值是否空
     fn null() -> Self;
@@ -197,16 +198,18 @@ impl Null for String {
 impl Null for TypeId {
     #[inline(always)]
     fn null() -> Self {
-        unsafe {mem::transmute::<u128, TypeId>(u128::null()) }
+        TypeId::of::<()>()
+        // unsafe {mem::transmute::<u128, TypeId>(u128::null()) }
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        unsafe {mem::transmute::<&TypeId, &u128>(self) }.is_null()
+        self == &TypeId::of::<()>()
+        // unsafe {mem::transmute::<&TypeId, &u128>(self) }.is_null()
     }
 }
 
 #[test]
-fn test() {
+fn test() { 
     let s = Some(1);
     assert_eq!(s.is_null(), false);
     assert_eq!(1.is_null(), false);
@@ -214,4 +217,5 @@ fn test() {
     assert_eq!(2.0f32.is_null(), false);
     assert_eq!("".is_null(), true);
     assert_eq!("2".is_null(), false);
+    println!("TYpeId3:{:?}", TypeId::of::<()>());
 }
