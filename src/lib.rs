@@ -4,6 +4,8 @@
 use std::any::TypeId;
 use std::mem::transmute;
 use std::ptr::{self, null_mut};
+use std::rc::Rc;
+use std::sync::Arc;
 
 pub trait Null {
     /// 判断当前值是否空
@@ -200,6 +202,26 @@ impl<T: Null> Null for Box<T> {
     #[inline(always)]
     fn null() -> Self {
         Box::new(T::null())
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.as_ref().is_null()
+    }
+}
+impl<T: Null> Null for Rc<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        Rc::new(T::null())
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.as_ref().is_null()
+    }
+}
+impl<T: Null> Null for Arc<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        Arc::new(T::null())
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
