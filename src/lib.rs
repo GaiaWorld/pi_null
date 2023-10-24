@@ -195,6 +195,26 @@ impl Null for String {
         self.is_empty()
     }
 }
+impl<T> Null for *const T {
+    #[inline(always)]
+    fn null() -> Self {
+        std::ptr::null()
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        <*const T>::is_null(*self)
+    }
+}
+impl<T> Null for *mut T {
+    #[inline(always)]
+    fn null() -> Self {
+        std::ptr::null_mut()
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        <*mut T>::is_null(*self)
+    }
+}
 impl Null for TypeId {
     #[inline(always)]
     fn null() -> Self {
