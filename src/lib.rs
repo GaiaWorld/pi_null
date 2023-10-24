@@ -1,8 +1,9 @@
 //!
-//! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。 
+//! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。
 //!
-
 use std::any::TypeId;
+use std::mem::transmute;
+use std::ptr::{self, null_mut};
 
 pub trait Null {
     /// 判断当前值是否空
@@ -195,10 +196,30 @@ impl Null for String {
         self.is_empty()
     }
 }
+impl<T: Null> Null for Box<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        Box::new(T::null())
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.as_ref().is_null()
+    }
+}
+impl<T> Null for Vec<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        Vec::new()
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.is_empty()
+    }
+}
 impl<T> Null for *const T {
     #[inline(always)]
     fn null() -> Self {
-        std::ptr::null()
+        ptr::null()
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
@@ -208,7 +229,7 @@ impl<T> Null for *const T {
 impl<T> Null for *mut T {
     #[inline(always)]
     fn null() -> Self {
-        std::ptr::null_mut()
+        ptr::null_mut()
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
@@ -229,7 +250,7 @@ impl Null for TypeId {
 }
 
 #[test]
-fn test() { 
+fn test() {
     let s = Some(1);
     assert_eq!(s.is_null(), false);
     assert_eq!(1.is_null(), false);
