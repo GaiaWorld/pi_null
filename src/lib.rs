@@ -2,8 +2,7 @@
 //! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。
 //!
 use std::any::TypeId;
-use std::mem::transmute;
-use std::ptr::{self, null_mut};
+use std::ptr;
 use std::rc::Rc;
 use std::sync::Arc;
 
