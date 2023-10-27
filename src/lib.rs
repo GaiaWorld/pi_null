@@ -4,6 +4,7 @@
 use std::any::TypeId;
 use std::ptr;
 use std::rc::Rc;
+use std::sync::atomic::*;
 use std::sync::Arc;
 
 pub trait Null {
@@ -177,6 +178,118 @@ impl Null for f64 {
         self.is_nan()
     }
 }
+
+impl Null for AtomicUsize {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicUsize::new(usize::max_value())
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == usize::max_value()
+    }
+}
+impl Null for AtomicIsize {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicIsize::new(isize::min_value())
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == isize::min_value()
+    }
+}
+impl Null for AtomicBool {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicBool::new(false)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire)
+    }
+}
+impl Null for AtomicU8 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicU8::new(u8::MAX)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == u8::MAX
+    }
+}
+impl Null for AtomicI8 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicI8::new(i8::MIN)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == i8::MIN
+    }
+}
+impl Null for AtomicU16 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicU16::new(u16::MAX)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == u16::MAX
+    }
+}
+impl Null for AtomicI16 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicI16::new(i16::MIN)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == i16::MIN
+    }
+}
+impl Null for AtomicU32 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicU32::new(u32::MAX)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == u32::MAX
+    }
+}
+impl Null for AtomicI32 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicI32::new(i32::MIN)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == i32::MIN
+    }
+}
+impl Null for AtomicU64 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicU64::new(u64::MAX)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == u64::MAX
+    }
+}
+impl Null for AtomicI64 {
+    #[inline(always)]
+    fn null() -> Self {
+        AtomicI64::new(i64::MIN)
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.load(Ordering::Acquire) == i64::MIN
+    }
+}
+
 impl Null for &str {
     #[inline(always)]
     fn null() -> Self {
