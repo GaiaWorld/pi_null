@@ -186,7 +186,7 @@ impl Null for AtomicUsize {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == usize::max_value()
+        self.load(Ordering::Relaxed) == usize::max_value()
     }
 }
 impl Null for AtomicIsize {
@@ -196,7 +196,7 @@ impl Null for AtomicIsize {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == isize::min_value()
+        self.load(Ordering::Relaxed) == isize::min_value()
     }
 }
 impl Null for AtomicBool {
@@ -206,7 +206,7 @@ impl Null for AtomicBool {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire)
+        self.load(Ordering::Relaxed)
     }
 }
 impl Null for AtomicU8 {
@@ -216,7 +216,7 @@ impl Null for AtomicU8 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == u8::MAX
+        self.load(Ordering::Relaxed) == u8::MAX
     }
 }
 impl Null for AtomicI8 {
@@ -226,7 +226,7 @@ impl Null for AtomicI8 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == i8::MIN
+        self.load(Ordering::Relaxed) == i8::MIN
     }
 }
 impl Null for AtomicU16 {
@@ -236,7 +236,7 @@ impl Null for AtomicU16 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == u16::MAX
+        self.load(Ordering::Relaxed) == u16::MAX
     }
 }
 impl Null for AtomicI16 {
@@ -246,7 +246,7 @@ impl Null for AtomicI16 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == i16::MIN
+        self.load(Ordering::Relaxed) == i16::MIN
     }
 }
 impl Null for AtomicU32 {
@@ -256,7 +256,7 @@ impl Null for AtomicU32 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == u32::MAX
+        self.load(Ordering::Relaxed) == u32::MAX
     }
 }
 impl Null for AtomicI32 {
@@ -266,7 +266,7 @@ impl Null for AtomicI32 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == i32::MIN
+        self.load(Ordering::Relaxed) == i32::MIN
     }
 }
 impl Null for AtomicU64 {
@@ -276,7 +276,7 @@ impl Null for AtomicU64 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == u64::MAX
+        self.load(Ordering::Relaxed) == u64::MAX
     }
 }
 impl Null for AtomicI64 {
@@ -286,7 +286,7 @@ impl Null for AtomicI64 {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Acquire) == i64::MIN
+        self.load(Ordering::Relaxed) == i64::MIN
     }
 }
 
