@@ -1,8 +1,11 @@
+#![feature(strict_provenance)]
+
 //!
 //! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。
 //!
 use std::any::TypeId;
-use std::ptr;
+use std::mem::transmute;
+use std::ops::Range;
 use std::rc::Rc;
 use std::sync::atomic::*;
 use std::sync::Arc;
@@ -353,23 +356,37 @@ impl<T> Null for Vec<T> {
 impl<T> Null for *const T {
     #[inline(always)]
     fn null() -> Self {
-        ptr::null()
+        unsafe { transmute(usize::null()) }
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        <*const T>::is_null(*self)
+        self.addr().is_null()
     }
 }
 impl<T> Null for *mut T {
     #[inline(always)]
     fn null() -> Self {
-        ptr::null_mut()
+        unsafe { transmute(usize::null()) }
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        <*mut T>::is_null(*self)
+        self.addr().is_null()
     }
 }
+impl<T: Null> Null for Range<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        Range {
+            start: T::null(),
+            end: T::null(),
+        }
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.start.is_null() && self.end.is_null()
+    }
+}
+
 impl Null for TypeId {
     #[inline(always)]
     fn null() -> Self {
