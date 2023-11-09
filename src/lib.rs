@@ -10,6 +10,7 @@ use std::ops::Range;
 use std::rc::Rc;
 use std::sync::atomic::*;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 pub trait Null {
     /// 判断当前值是否空
@@ -342,6 +343,16 @@ impl<T: Null> Null for Arc<T> {
     #[inline(always)]
     fn is_null(&self) -> bool {
         self.as_ref().is_null()
+    }
+}
+impl<T: Null> Null for Arc<Mutex<T>> {
+    #[inline(always)]
+    fn null() -> Self {
+        Arc::new(Mutex::new(T::null()))
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        self.try_lock().unwrap().is_null()
     }
 }
 impl<T> Null for Vec<T> {
