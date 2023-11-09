@@ -5,6 +5,7 @@
 //!
 use std::any::TypeId;
 use std::mem::transmute;
+use std::mem::MaybeUninit;
 use std::ops::Range;
 use std::rc::Rc;
 use std::sync::atomic::*;
@@ -386,7 +387,6 @@ impl<T: Null> Null for Range<T> {
         self.start.is_null() && self.end.is_null()
     }
 }
-
 impl Null for TypeId {
     #[inline(always)]
     fn null() -> Self {
@@ -397,6 +397,16 @@ impl Null for TypeId {
     fn is_null(&self) -> bool {
         self == &TypeId::of::<()>()
         // unsafe {mem::transmute::<&TypeId, &u128>(self) }.is_null()
+    }
+}
+impl<T> Null for MaybeUninit<T> {
+    #[inline(always)]
+    fn null() -> Self {
+        MaybeUninit::uninit()
+    }
+    #[inline(always)]
+    fn is_null(&self) -> bool {
+        true
     }
 }
 
