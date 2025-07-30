@@ -1,5 +1,3 @@
-#![feature(strict_provenance)]
-
 //!
 //! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。
 //!
