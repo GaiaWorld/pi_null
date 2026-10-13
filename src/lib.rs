@@ -2,8 +2,6 @@
 //! Null主要用在其他数据结构中，让值本身支持判断是否空。可以提升内存性能，减少使用Option。
 //!
 use std::any::TypeId;
-use std::mem::transmute;
-use std::mem::MaybeUninit;
 use std::ops::Range;
 use std::rc::Rc;
 use std::sync::atomic::*;
@@ -58,7 +56,7 @@ impl Null for bool {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        *self
+        !*self
     }
 }
 impl Null for u8 {
@@ -209,7 +207,7 @@ impl Null for AtomicBool {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.load(Ordering::Relaxed)
+        !self.load(Ordering::Relaxed)
     }
 }
 impl Null for AtomicU8 {
@@ -350,7 +348,7 @@ impl<T: Null> Null for Arc<Mutex<T>> {
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.try_lock().unwrap().is_null()
+        self.lock().unwrap_or_else(|poisoned| poisoned.into_inner()).is_null()
     }
 }
 impl<T> Null for Vec<T> {
@@ -366,21 +364,21 @@ impl<T> Null for Vec<T> {
 impl<T> Null for *const T {
     #[inline(always)]
     fn null() -> Self {
-        unsafe { transmute(usize::null()) }
+        std::ptr::null()
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.addr().is_null()
+        (*self).is_null()
     }
 }
 impl<T> Null for *mut T {
     #[inline(always)]
     fn null() -> Self {
-        unsafe { transmute(usize::null()) }
+        std::ptr::null_mut()
     }
     #[inline(always)]
     fn is_null(&self) -> bool {
-        self.addr().is_null()
+        (*self).is_null()
     }
 }
 impl<T: Null> Null for Range<T> {
@@ -408,17 +406,6 @@ impl Null for TypeId {
         // unsafe {mem::transmute::<&TypeId, &u128>(self) }.is_null()
     }
 }
-impl<T> Null for MaybeUninit<T> {
-    #[inline(always)]
-    fn null() -> Self {
-        MaybeUninit::uninit()
-    }
-    #[inline(always)]
-    fn is_null(&self) -> bool {
-        true
-    }
-}
-
 #[test]
 fn test() {
     let s = Some(1);
@@ -429,4 +416,60 @@ fn test() {
     assert_eq!("".is_null(), true);
     assert_eq!("2".is_null(), false);
     println!("TYpeId3:{:?}", TypeId::of::<()>());
+}
+
+#[test]
+fn bool_null_values() {
+    assert!(bool::null().is_null());
+    assert!(!true.is_null());
+    assert!(AtomicBool::null().is_null());
+    assert!(!AtomicBool::new(true).is_null());
+}
+
+#[test]
+fn pointer_null_values() {
+    let value = 42;
+    let mut mutable_value = 42;
+    let const_ptr = &value as *const i32;
+    let mut_ptr = &mut mutable_value as *mut i32;
+    assert!(Null::is_null(&<*const i32 as Null>::null()));
+    assert!(Null::is_null(&std::ptr::null::<i32>()));
+    assert!(!Null::is_null(&const_ptr));
+    assert!(Null::is_null(&<*mut i32 as Null>::null()));
+    assert!(Null::is_null(&std::ptr::null_mut::<i32>()));
+    assert!(!Null::is_null(&mut_ptr));
+}
+
+#[test]
+fn mutex_null_waits_for_lock() {
+    use std::sync::mpsc;
+
+    let value = <Arc<Mutex<u8>> as Null>::null();
+    let guard = value.lock().unwrap();
+    let (sender, receiver) = mpsc::channel();
+    let other = Arc::clone(&value);
+    let worker = std::thread::spawn(move || sender.send(other.is_null()).unwrap());
+    drop(guard);
+    assert!(receiver.recv().unwrap());
+    worker.join().unwrap();
+}
+
+#[test]
+fn poisoned_mutex_still_checks_inner_value() {
+    let value = Arc::new(Mutex::new(u8::null()));
+    let other = Arc::clone(&value);
+    assert!(std::thread::spawn(move || {
+        let _guard = other.lock().unwrap();
+        panic!("poison the mutex");
+    })
+    .join()
+    .is_err());
+    assert!(value.is_null());
+}
+
+#[test]
+fn type_id_unit_remains_null() {
+    assert!(TypeId::null().is_null());
+    assert!(TypeId::of::<()>().is_null());
+    assert!(!TypeId::of::<u8>().is_null());
 }
